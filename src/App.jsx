@@ -20,7 +20,7 @@ function App() {
 
   async function getNFTsForOwner() {
     const config = {
-      apiKey: '<-- COPY-PASTE YOUR ALCHEMY API KEY HERE -->',
+      apiKey: 'fM36Ntbc8M4HXRYS41PfOFVllklMd_JQ',
       network: Network.ETH_MAINNET,
     };
 
