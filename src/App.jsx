@@ -15,6 +15,7 @@ import { useState } from 'react';
 function App() {
   const [userAddress, setUserAddress] = useState('');
   const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [hasQueried, setHasQueried] = useState(false);
   const [tokenDataObjects, setTokenDataObjects] = useState([]);
 
@@ -30,27 +31,34 @@ function App() {
   }
 
   async function getNFTsForOwner() {
-    const config = {
-      apiKey: 'fM36Ntbc8M4HXRYS41PfOFVllklMd_JQ',
-      network: Network.ETH_MAINNET,
-    };
+    try {
+      if(userAddress === '') return alert('No wallet connected!') 
+      setLoading(true)
+      const config = {
+        apiKey: 'fM36Ntbc8M4HXRYS41PfOFVllklMd_JQ',
+        network: Network.ETH_MAINNET,
+      };
 
-    const alchemy = new Alchemy(config);
-    const data = await alchemy.nft.getNftsForOwner(userAddress);
-    setResults(data);
+      const alchemy = new Alchemy(config);
+      const data = await alchemy.nft.getNftsForOwner(userAddress);
+      setResults(data);
 
-    const tokenDataPromises = [];
+      const tokenDataPromises = [];
 
-    for (let i = 0; i < data.ownedNfts.length; i++) {
-      const tokenData = alchemy.nft.getNftMetadata(
-        data.ownedNfts[i].contract.address,
-        data.ownedNfts[i].tokenId
-      );
-      tokenDataPromises.push(tokenData);
+      for (let i = 0; i < data.ownedNfts.length; i++) {
+        const tokenData = alchemy.nft.getNftMetadata(
+          data.ownedNfts[i].contract.address,
+          data.ownedNfts[i].tokenId
+        );
+        tokenDataPromises.push(tokenData);
+      }
+
+      setTokenDataObjects(await Promise.all(tokenDataPromises));
+      setHasQueried(true);
+      setLoading(false);
+    } catch (error) {
+      throw new Error(error.message)
     }
-
-    setTokenDataObjects(await Promise.all(tokenDataPromises));
-    setHasQueried(true);
   }
   return (
     <Box w="100vw"> 
@@ -94,6 +102,10 @@ function App() {
         </button>
 
         <Heading my={36}>Here are your NFTs:</Heading>
+
+        {loading && (
+          <Text>Loading...</Text>
+        )}
 
         {hasQueried ? (
           <SimpleGrid w={'90vw'} columns={4} spacing={24}>
