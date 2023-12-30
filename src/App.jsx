@@ -18,6 +18,17 @@ function App() {
   const [hasQueried, setHasQueried] = useState(false);
   const [tokenDataObjects, setTokenDataObjects] = useState([]);
 
+  async function connectWallet() {
+    try {
+      if(!ethereum) return alert("Please install metamask");
+      const account = await ethereum.request({ method: 'eth_requestAccounts'})
+
+      setUserAddress(account[0])
+    } catch (error) {
+      throw new Error("No Ethereum object.")
+    }
+  }
+
   async function getNFTsForOwner() {
     const config = {
       apiKey: 'fM36Ntbc8M4HXRYS41PfOFVllklMd_JQ',
@@ -42,7 +53,8 @@ function App() {
     setHasQueried(true);
   }
   return (
-    <Box w="100vw">
+    <Box w="100vw"> 
+      
       <Center>
         <Flex
           alignItems={'center'}
@@ -72,10 +84,14 @@ function App() {
           p={4}
           bgColor="white"
           fontSize={24}
+          placeholder={userAddress}
         />
         <Button fontSize={20} onClick={getNFTsForOwner} mt={36} bgColor="blue">
           Fetch NFTs
         </Button>
+        <button fontSize={20} mt={36} onClick={connectWallet}>
+          Connect Wallet
+        </button>
 
         <Heading my={36}>Here are your NFTs:</Heading>
 
